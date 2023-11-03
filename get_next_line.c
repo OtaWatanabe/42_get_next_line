@@ -6,44 +6,52 @@
 /*   By: otawatanabe <otawatanabe@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/31 14:17:50 by otawatanabe       #+#    #+#             */
-/*   Updated: 2023/11/02 05:55:41 by otawatanabe      ###   ########.fr       */
+/*   Updated: 2023/11/03 07:37:11 by otawatanabe      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*concat(char *s1, char *s2, ssize_t l1, ssize_t l2)
+char	*concat(char *s1, char *s2, ssize_t l2)
 {
 	char	*ret;
-	ssize_t	i;
+	ssize_t	l1;
+	ssize_t flag;
 
-	i = 0;
+	l1 = 0;
+	flag = l2;
+	if (s2 == NULL || l2 == 0)
+		return (s1);
+	while (s1 && s1[l1])
+		l1++;
+	if (l2 == -1)
+		while (s2[++l2])
+			;
 	ret = malloc(l1 + l2 + 1);
 	if (ret == NULL)
 		return (NULL);
-	while (i++ < l1)
-		ret[i - 1] = s1[i - 1];
-	if (l1)
-		free(s1);
-	i = 0;
-	while (i++ < l2)
-		ret[i - 1 + l1] = s2[i - 1];
 	ret[l1 + l2] = '\0';
+	while (l2--)
+		ret[l1 + l2] = s2[l2];
+	while (s1 && ++l2 < l1)
+		ret[l2] = s1[l2];
+	free(s1);
+	if (flag == -1)
+		free(s2);
 	return (ret);
 }
 
-int	check_new_line(char *s, char **line, ssize_t *l, int max)
+int	check_new_line(char *s, char **line, ssize_t max)
 {
 	ssize_t	size;
 	ssize_t	i;
 
 	size = 0;
-	while (s[size] && (size == 0 || s[size - 1] != '\n'))
+	if (max != -1)
+		s[max] = '\0';
+	while (s[size] && (!size || s[size - 1] != '\n'))
 		size++;
-	if (max > 0 && size > max)
-		size = max;
-	*line = concat(*line, s, *l, size);
-	*l += size;
+	*line = concat(*line, s, size);
 	if (*line == NULL)
 	{
 		free(s);
@@ -52,64 +60,52 @@ int	check_new_line(char *s, char **line, ssize_t *l, int max)
 	}
 	if (s[size - 1] != '\n')
 		return (1);
-	i = size;
-	while (s[i++])
-		s[i - 1 - size] = s[i - 1];
-	s[i - 1 - size] = '\0';
+	i = 0;
+	while (s[size + i++])
+		s[i - 1] = s[size + i - 1];
+	s[i - 1] = '\0';
 	return (0);
 }
 
-int	buf_read(char **line, char *buf, int fd, ssize_t n, char **rest)
+char	*buf_read(char **buf, int fd, char **rest)
 {
 	ssize_t	num_read;
-	ssize_t i;
+	char	*line;
 
-	buf[BUFFER_SIZE] = '\0';
-	i = n;
-	num_read = read(fd, buf, BUFFER_SIZE);
-	while (num_read > 0 && check_new_line(buf, line, &n, num_read))
-		num_read = read(fd, buf, BUFFER_SIZE);
-	if (num_read > 0 && *line)
+	line = NULL;
+	num_read = read(fd, *buf, BUFFER_SIZE);
+	while (num_read > 0 && check_new_line(*buf, &line, num_read))
+		num_read = read(fd, *buf, BUFFER_SIZE);
+	if (num_read > 0 && line && **buf)
 	{
-		i = (n - i - 1) % BUFFER_SIZE + 1;
-		if (i == num_read || (i - 1 == num_read && buf[num_read - 1] == '\0'))
-			return (0);
-		free(*rest);
-		*rest = concat(*rest, buf, 0, num_read - i);
-		if (*rest)
-			return(1);
+		*rest = *buf;
+		*buf = NULL;
 	}
-	if (num_read == 0)
-		return(0);
-	free(*line);
-	*line = NULL;
-	return (0);
+	if (num_read == -1 || line == NULL || *line == '\0')
+	{
+		free(line);
+		line = NULL;
+	}
+	return (line);
 }
-
 
 char	*get_next_line(int fd)
 {
 	char		*buf;
 	char		*line;
 	static char	*rest;
-	ssize_t		n;
 
-	n = 0;
 	line = NULL;
-	if (BUFFER_SIZE <= 0 || (rest && check_new_line(rest, &line, &n, -1) == 0))
+	if (BUFFER_SIZE <= 0 || (rest && check_new_line(rest, &line, -1) == 0))
 		return (line);
+	free(rest);
+	rest = NULL;
 	if ((buf = malloc(BUFFER_SIZE + 1)) == NULL)
 	{
 		free(line);
-		line = NULL;
+		return(NULL);
 	}
-	if (buf == NULL || buf_read(&line, buf, fd, n, &rest) == 0)
-	{
-		free(rest);
-		free(buf);
-		rest = NULL;
-		return (line);
-	}
+	line = concat(line, buf_read(&buf, fd, &rest), -1);
 	free(buf);
 	return (line);
 }
