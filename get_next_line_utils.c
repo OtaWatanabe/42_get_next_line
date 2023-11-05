@@ -6,7 +6,7 @@
 /*   By: owatanab <owatanab@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:48:11 by otawatanabe       #+#    #+#             */
-/*   Updated: 2023/11/05 10:49:20 by owatanab         ###   ########.fr       */
+/*   Updated: 2023/11/05 15:03:07 by owatanab         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,29 +41,29 @@ char	*concat(char *s1, char *s2, ssize_t l2)
 	return (ret);
 }
 
-int	check_new_line(char *s, char **line, ssize_t max)
+int	check_new_line(char **s, char **line, ssize_t max)
 {
 	ssize_t	size;
 	ssize_t	i;
 
 	size = 0;
 	if (max != -1)
-		s[max] = '\0';
-	while (s[size] && (!size || s[size - 1] != '\n'))
+		(*s)[max] = '\0';
+	while ((*s)[size] && (!size || (*s)[size - 1] != '\n'))
 		size++;
-	*line = concat(*line, s, size);
+	*line = concat(*line, *s, size);
 	if (*line == NULL)
 	{
-		free(s);
-		s = NULL;
+		free(*s);
+		*s = NULL;
 		return (0);
 	}
-	if (s[size - 1] != '\n')
+	if ((*s)[size - 1] != '\n')
 		return (1);
 	i = 0;
-	while (s[size + i++])
-		s[i - 1] = s[size + i - 1];
-	s[i - 1] = '\0';
+	while ((*s)[size + i++])
+		(*s)[i - 1] = (*s)[size + i - 1];
+	(*s)[i - 1] = '\0';
 	return (0);
 }
 
@@ -74,7 +74,7 @@ char	*buf_read(char **buf, int fd, char **rest)
 
 	line = NULL;
 	num_read = read(fd, *buf, BUFFER_SIZE);
-	while (num_read > 0 && check_new_line(*buf, &line, num_read))
+	while (num_read > 0 && check_new_line(buf, &line, num_read))
 		num_read = read(fd, *buf, BUFFER_SIZE);
 	if (num_read > 0 && line && **buf)
 	{
