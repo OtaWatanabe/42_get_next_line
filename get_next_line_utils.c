@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: otawatanabe <otawatanabe@student.42.fr>    +#+  +:+       +#+        */
+/*   By: owatanab <owatanab@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:48:11 by otawatanabe       #+#    #+#             */
-/*   Updated: 2023/11/03 17:07:03 by otawatanabe      ###   ########.fr       */
+/*   Updated: 2023/11/05 10:49:20 by owatanab         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ char	*concat(char *s1, char *s2, ssize_t l2)
 {
 	char	*ret;
 	ssize_t	l1;
-	ssize_t flag;
+	ssize_t	flag;
 
 	l1 = 0;
 	flag = l2;
