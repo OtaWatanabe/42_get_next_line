@@ -6,11 +6,11 @@
 /*   By: owatanab <owatanab@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 17:50:31 by owatanab          #+#    #+#             */
-/*   Updated: 2023/11/06 17:58:59 by owatanab         ###   ########.fr       */
+/*   Updated: 2023/11/06 18:05:50 by owatanab         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char	*concat(char *s1, char *s2, ssize_t l2)
 {
