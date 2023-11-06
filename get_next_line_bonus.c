@@ -6,7 +6,7 @@
 /*   By: owatanab <owatanab@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 17:51:00 by owatanab          #+#    #+#             */
-/*   Updated: 2023/11/06 18:05:45 by owatanab         ###   ########.fr       */
+/*   Updated: 2023/11/06 18:10:06 by owatanab         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,9 @@ char	*get_next_line(int fd)
 	static char	*rest[1024];
 
 	line = NULL;
-	if (BUFFER_SIZE <= 0 || (rest[fd]
-			&& *(rest[fd]) && check_new_line(&rest[fd], &line, -1) == 0))
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	if ((rest[fd] && *(rest[fd]) && check_new_line(&rest[fd], &line, -1) == 0))
 		return (line);
 	free(rest[fd]);
 	rest[fd] = NULL;
