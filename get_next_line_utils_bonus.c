@@ -3,41 +3,35 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils_bonus.c                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: owatanab <owatanab@student.42.fr>          +#+  +:+       +#+        */
+/*   By: otawatanabe <otawatanabe@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 17:50:31 by owatanab          #+#    #+#             */
-/*   Updated: 2023/11/06 18:05:50 by owatanab         ###   ########.fr       */
+/*   Updated: 2023/11/07 04:05:10 by otawatanabe      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
 
-char	*concat(char *s1, char *s2, ssize_t l2)
+char	*concat(char *s1, char *s2, ssize_t len2)
 {
 	char	*ret;
-	ssize_t	l1;
-	ssize_t	flag;
+	ssize_t	len1;
 
-	l1 = 0;
-	flag = l2;
-	if (s2 == NULL || l2 == 0)
-		return (s1);
-	while ((s1 && s1[l1] && ++l1) || (flag == -1 && s2[++l2]))
-		;
-	ret = malloc(l1 + l2 + 1);
+	len1 = 0;
+	while ((s1 && s1[len1]))
+		len1++;
+	ret = malloc(len1 + len2 + 1);
 	if (ret == NULL)
 	{
 		free(s1);
 		return (NULL);
 	}
-	ret[l1 + l2] = '\0';
-	while (l2--)
-		ret[l1 + l2] = s2[l2];
-	while (++l2 < l1)
-		ret[l2] = s1[l2];
+	ret[len1 + len2] = '\0';
+	while (len2--)
+		ret[len1 + len2] = s2[len2];
+	while (++len2 < len1)
+		ret[len2] = s1[len2];
 	free(s1);
-	if (flag == -1)
-		free(s2);
 	return (ret);
 }
 
@@ -52,7 +46,7 @@ int	check_new_line(char **s, char **line, ssize_t max)
 	while ((*s)[size] && (!size || (*s)[size - 1] != '\n'))
 		size++;
 	*line = concat(*line, *s, size);
-	if (*line == NULL)
+	if (*line == NULL || (!(*s)[size] && (*s)[size - 1] == '\n'))
 	{
 		free(*s);
 		*s = NULL;
@@ -67,24 +61,28 @@ int	check_new_line(char **s, char **line, ssize_t max)
 	return (0);
 }
 
-char	*buf_read(char **buf, int fd, char **rest)
+char	*buf_read(int fd, char **rest, char *line)
 {
 	ssize_t	num_read;
-	char	*line;
+	char	*buf;
 
-	line = NULL;
-	num_read = read(fd, *buf, BUFFER_SIZE);
-	while (num_read > 0 && check_new_line(buf, &line, num_read))
-		num_read = read(fd, *buf, BUFFER_SIZE);
-	if (num_read > 0 && line && **buf)
-	{
-		*rest = *buf;
-		*buf = NULL;
-	}
-	if (num_read == -1 || line == NULL || *line == '\0')
+	buf = malloc(BUFFER_SIZE + 1);
+	if (buf == NULL)
 	{
 		free(line);
-		line = NULL;
+		return (NULL);
 	}
+	num_read = read(fd, buf, BUFFER_SIZE);
+	while (num_read > 0 && check_new_line(&buf, &line, num_read))
+		num_read = read(fd, buf, BUFFER_SIZE);
+	if (num_read <= 0 || line == NULL)
+	{
+		free(buf);
+		if (num_read == 0)
+			return (line);
+		free(line);
+		return(NULL);
+	}
+	*rest = buf;
 	return (line);
 }
