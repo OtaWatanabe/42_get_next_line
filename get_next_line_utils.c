@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: otawatanabe <otawatanabe@student.42.fr>    +#+  +:+       +#+        */
+/*   By: owatanab <owatanab@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 16:48:11 by otawatanabe       #+#    #+#             */
-/*   Updated: 2023/11/07 03:59:56 by otawatanabe      ###   ########.fr       */
+/*   Updated: 2023/11/08 16:24:51 by owatanab         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ char	*buf_read(int fd, char **rest, char *line)
 		if (num_read == 0)
 			return (line);
 		free(line);
-		return(NULL);
+		return (NULL);
 	}
 	*rest = buf;
 	return (line);
